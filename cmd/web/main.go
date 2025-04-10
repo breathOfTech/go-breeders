@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"html/template"
 	"log"
 	"net/http"
 	"time"
+
+	"go-breeders/models"
 )
 
 const port = ":4001"
@@ -13,10 +16,13 @@ const port = ":4001"
 type application struct {
 	templateMap map[string]*template.Template
 	config      appConfig
+	DB          *sql.DB
+	Models      models.Models
 }
 
 type appConfig struct {
 	useCache bool
+	dsn      string
 }
 
 func main() {
@@ -25,7 +31,16 @@ func main() {
 	}
 
 	flag.BoolVar(&app.config.useCache, "cache", false, "use template cache")
+	flag.StringVar(&app.config.dsn, "dsn", "mariadb:myverysecretpassword@tcp(localhost:3306)/breeders?parseTime=true&tls=false&collation=utf8_unicode_ci&timeout=5s", "DSN")
 	flag.Parse()
+
+	// get database
+	db, err := initMySQLDB(app.config.dsn)
+	if err != nil {
+		log.Panic(err)
+	}
+	app.DB = db
+	app.Models = *models.New(db)
 
 	srv := &http.Server{
 		Addr:              port,
@@ -35,7 +50,8 @@ func main() {
 		ReadHeaderTimeout: 30 * time.Second,
 		WriteTimeout:      30 * time.Second,
 	}
-	err := srv.ListenAndServe()
+
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
