@@ -29,3 +29,27 @@ func (app *application) CreateCatFromFactory(w http.ResponseWriter, r *http.Requ
 	var t utils.Tools
 	_ = t.WriteJSON(w, http.StatusOK, pets.NewPet("cat"))
 }
+
+func (app *application) TestPatterns(w http.ResponseWriter, r *http.Request) {
+	app.render(w, "test.page.gohtml", nil)
+}
+
+func (app *application) CreateDogFromAbstractFacotry(w http.ResponseWriter, r *http.Request) {
+	var t utils.Tools
+	dog, err := pets.NewPetFromAbstractFactory("dog")
+	if err != nil {
+		_ = t.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	_ = t.WriteJSON(w, http.StatusOK, dog)
+}
+
+func (app *application) CreateCatFromAbstractFacotry(w http.ResponseWriter, r *http.Request) {
+	var t utils.Tools
+	cat, err := pets.NewPetFromAbstractFactory("cat")
+	if err != nil {
+		_ = t.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	_ = t.WriteJSON(w, http.StatusOK, cat)
+}
