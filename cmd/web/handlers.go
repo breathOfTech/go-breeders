@@ -22,12 +22,14 @@ func (app *application) ShowPage(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) CreateDogFromFactory(w http.ResponseWriter, r *http.Request) {
 	var t utils.Tools
-	_ = t.WriteJSON(w, http.StatusOK, pets.NewPet("dog"))
+
+	t.WriteJSON(w, http.StatusOK, pets.NewPet("dog"))
 }
 
 func (app *application) CreateCatFromFactory(w http.ResponseWriter, r *http.Request) {
 	var t utils.Tools
-	_ = t.WriteJSON(w, http.StatusOK, pets.NewPet("cat"))
+
+	t.WriteJSON(w, http.StatusOK, pets.NewPet("cat"))
 }
 
 func (app *application) TestPatterns(w http.ResponseWriter, r *http.Request) {
@@ -58,9 +60,56 @@ func (app *application) GetAllDogBreedsJSON(w http.ResponseWriter, r *http.Reque
 	var t utils.Tools
 	dogBreeds, err := app.App.Models.DogBreed.All()
 	if err != nil {
-		_ = t.ErrorJSON(w, err, http.StatusInternalServerError)
+		t.ErrorJSON(w, err, http.StatusInternalServerError)
 		return
 	}
 	t.WriteJSON(w, http.StatusOK, dogBreeds)
+}
 
+func (app *application) CreateDogWithBuilder(w http.ResponseWriter, r *http.Request) {
+
+	var t utils.Tools
+
+	// create a dog using the builder pattern
+	p, err := pets.NewPetBuilder().SetSpecies("dog").SetBreed("mixed breed").SetWeight(15).SetDescription(" a mixed breed of unknown origin.").
+		SetColor("Black and white").
+		SetAge(2).
+		SetAgeEstimated(true).
+		Build()
+
+	if err != nil {
+		t.ErrorJSON(w, err, http.StatusBadRequest)
+	}
+
+	t.WriteJSON(w, http.StatusOK, p)
+
+}
+
+func (app *application) CreateCatWithBuilder(w http.ResponseWriter, r *http.Request) {
+
+	var t utils.Tools
+
+	// create a dog using the builder pattern
+	p, err := pets.NewPetBuilder().SetSpecies("cat").SetBreed("mixed breed").SetWeight(15).SetDescription(" a mixed breed of unknown origin.").
+		SetColor("Black and white").
+		SetAge(2).
+		SetAgeEstimated(true).
+		Build()
+
+	if err != nil {
+		t.ErrorJSON(w, err, http.StatusBadRequest)
+	}
+
+	t.WriteJSON(w, http.StatusOK, p)
+
+}
+
+func (app *application) GetAllCatBreeds(w http.ResponseWriter, r *http.Request) {
+	var t utils.Tools
+	catBreeds, err := app.catService.GetAllBreeds()
+	if err != nil {
+		t.ErrorJSON(w, err, http.StatusBadRequest)
+	}
+
+	t.WriteJSON(w, http.StatusOK, catBreeds)
 }

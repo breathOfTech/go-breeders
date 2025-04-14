@@ -16,6 +16,7 @@ type application struct {
 	templateMap map[string]*template.Template
 	config      appConfig
 	App         *configuration.Application // singleton
+	catService  *RemoteService
 }
 
 type appConfig struct {
@@ -37,6 +38,13 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	// jsonBackend := &JSONBackend{}
+	// jsonAdapter := &RemoteService{Remote: jsonBackend}
+	//app.catService = jsonAdapter
+	xmlBackend := &XMLBackend{}
+	xmlAdapter := &RemoteService{Remote: xmlBackend}
+	app.catService = xmlAdapter
 
 	app.App = configuration.New(db)
 
